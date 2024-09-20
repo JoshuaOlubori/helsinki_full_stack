@@ -9,5 +9,6 @@ Note right of browser: rerenders the page with the new form data
 
     browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note
     activate server
-Note right of browser: new note is saved in server
+Note right of browser: new note is saved in server (server response is {"message":"note created"})
+
 ```
