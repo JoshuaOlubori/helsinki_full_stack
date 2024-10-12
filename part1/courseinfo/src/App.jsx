@@ -1,60 +1,55 @@
+import Course from "./components/Course";
 const App = () => {
-  const course = {
-    name: "Half Stack application development",
-    parts: [
-      {
-        name: "Fundamentals of React",
-        exercises: 10,
-      },
-      {
-        name: "Using props to pass data",
-        exercises: 7,
-      },
-      {
-        name: "State of a component",
-        exercises: 14,
-      },
-    ],
-  };
+  const courses = [
+    {
+      name: "Half Stack application development",
+      id: 1,
+      parts: [
+        {
+          name: "Fundamentals of React",
+          exercises: 10,
+          id: 1,
+        },
+        {
+          name: "Using props to pass data",
+          exercises: 7,
+          id: 2,
+        },
+        {
+          name: "State of a component",
+          exercises: 14,
+          id: 3,
+        },
+        {
+          name: "Redux",
+          exercises: 11,
+          id: 4,
+        },
+      ],
+    },
+    {
+      name: "Node.js",
+      id: 2,
+      parts: [
+        {
+          name: "Routing",
+          exercises: 3,
+          id: 1,
+        },
+        {
+          name: "Middlewares",
+          exercises: 7,
+          id: 2,
+        },
+      ],
+    },
+  ];
 
   // COMPONENTS
 
-  const Header = ({ courseTitle }) => {
-    return <h1>{courseTitle}</h1>;
-  };
-  //
-  const Part = ({ partName, partExercises }) => {
-    return (
-      <div>
-        <span>{partName}</span> <span>{partExercises}</span>
-      </div>
-    );
-  };
-  //
-  const Content = ({ parts }) => {
-    return (
-      <>
-        {parts.map((part) => (
-          <Part partName={part.name} partExercises={part.exercises} />
-        ))}
-      </>
-    );
-  };
-  //
-  const Total = ({ parts }) => {
-    return (
-      <p>
-        Total of {parts.reduce((sum, part) => sum + part.exercises, 0)}{" "}
-        exercises
-      </p>
-    );
-  };
-
   return (
     <div>
-      <Header courseTitle={course.name} />
-      <Content parts={course.parts} />
-      <Total parts={course.parts} />
+      <Course courses={courses} />
     </div>
   );
 };
