@@ -1,67 +1,25 @@
 import { useState } from "react";
+import { isEqual } from "lodash";
 
 const App = () => {
-  const [persons, setPersons] = useState([{ name: "Arto Hellas" }]);
+  const [persons, setPersons] = useState([
+    { name: "Arto Hellas", number: 9999999 },
+  ]);
   const [newName, setNewName] = useState(" ");
+  const [newNumber, setNewNumber] = useState(" ");
 
-  const handleInputChange = (e) => {
+  const handleNameInputChange = (e) => {
     setNewName(e.target.value);
   };
 
-  function areTheseObjectsEqual(first, second) {
-    "use strict";
-    // from https://www.joshbritz.co/blog/why-its-so-hard-to-check-object-equality
-
-    if (
-      first === null ||
-      first === undefined ||
-      second === null ||
-      second === undefined
-    ) {
-      return first === second;
-    }
-
-    if (first.constructor !== second.constructor) {
-      return false;
-    }
-
-    if (first instanceof Function || first instanceof RegExp) {
-      return first === second;
-    }
-
-    if (first === second || first.valueOf() === second.valueOf()) {
-      return true;
-    }
-
-    if (first instanceof Date) return false;
-
-    if (Array.isArray(first) && first.length !== second.length) {
-      return false;
-    }
-
-    if (!(first instanceof Object) || !(second instanceof Object)) {
-      return false;
-    }
-
-    const firstKeys = Object.keys(first);
-
-    const allKeysExist = Object.keys(second).every(
-      (i) => firstKeys.indexOf(i) !== -1
-    );
-
-    const allKeyValuesMatch = firstKeys.every((i) =>
-      areTheseObjectsEqual(first[i], second[i])
-    );
-
-    return allKeysExist && allKeyValuesMatch;
-  }
+  const handleNumberInputChange = (e) => {
+    setNewNumber(e.target.value);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newObj = { name: newName };
-    const matchingObjs = persons.filter((person) =>
-      areTheseObjectsEqual(newObj, person)
-    );
+    const newObj = { name: newName, number: newNumber };
+    const matchingObjs = persons.filter((person) => isEqual(newObj, person));
     console.log(matchingObjs);
 
     if (matchingObjs.length != 0) {
@@ -69,6 +27,7 @@ const App = () => {
     } else {
       setPersons(persons.concat(newObj));
       setNewName("");
+      setNewNumber("");
     }
   };
   return (
@@ -76,7 +35,14 @@ const App = () => {
       <h2>Phonebook</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          name: <input value={newName} onChange={handleInputChange} />
+          <p>
+            name: <input value={newName} onChange={handleNameInputChange} />
+          </p>
+          <p>
+            {" "}
+            number:{" "}
+            <input value={newNumber} onChange={handleNumberInputChange} />
+          </p>
         </div>
         <div>
           <button type="submit">add</button>
@@ -84,7 +50,9 @@ const App = () => {
       </form>
       <h2>Numbers</h2>
       {persons.map((person) => (
-        <p>{person.name}</p>
+        <div key={person.name}>
+          <span>{person.name}</span>:<span>{person.number}</span>
+        </div>
       ))}
     </div>
   );
