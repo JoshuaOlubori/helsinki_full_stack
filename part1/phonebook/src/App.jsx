@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { isEqual } from "lodash";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
@@ -21,13 +19,31 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const newObj = { name: newName, number: newNumber };
+    // const matchingObjs = PersonsData.filter((person) =>
+    //   isEqual(newObj, person)
+    // );
+
     const matchingObjs = PersonsData.filter((person) =>
-      isEqual(newObj, person)
-    );
+         person.name === newObj.name);
     console.log(matchingObjs);
+    // if (matchingObjs.length != 0 && (matchingObjs[0].name === newObj.name)){
+    //   alert(`${newObj.name} is already added to phonebook`);
+    // }
 
     if (matchingObjs.length != 0) {
-      alert(`${newObj.name} is already added to phonebook`);
+      alert(`${newObj.name} is already added to phonebook, replace the old number
+        with a new one?`);
+        contacts.update(matchingObjs[0].id, newObj).then(
+          updatedContact =>{
+            console.log(updatedContact.name, "has been updated")
+            const g =  PersonsData.find(person=> person.id === matchingObjs[0].id )
+            
+            console.log("g is ",g);
+            SetPersonsData(PersonsData.map(p => p.id === matchingObjs[0].id ? updatedContact: p))
+            setNewName("");
+            setNewNumber("");
+          }
+        )
     } else {
       contacts.create(newObj).then(
         newContact => {
