@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { isEqual } from "lodash";
+import Filter from "./components/Filter";
+import PersonForm from "./components/PersonForm";
+import Persons from "./components/Persons";
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -13,23 +16,9 @@ const App = () => {
   const [newSearch, setNewSearch] = useState("");
   // const [filteredPersons, setFilteredPersons] = useState(persons);
 
-  const handleNameInputChange = (e) => {
-    setNewName(e.target.value);
-  };
-
-  const handleNumberInputChange = (e) => {
-    setNewNumber(e.target.value);
-  };
-
-  const handleSearchInputChange = (e) => {
-    setNewSearch(e.target.value);
-  };
-
   const filteredPersons = persons.filter((person) =>
     person.name.toLowerCase().includes(newSearch.toLowerCase())
   );
-
-  console.log(filteredPersons, newSearch);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -48,35 +37,18 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <p>
-        filter shown with a{" "}
-        <input
-          type="text"
-          value={newSearch}
-          onChange={handleSearchInputChange}
-        />
-      </p>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <p>
-            name: <input value={newName} onChange={handleNameInputChange} />
-          </p>
-          <p>
-            {" "}
-            number:{" "}
-            <input value={newNumber} onChange={handleNumberInputChange} />
-          </p>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      {filteredPersons.map((person) => (
-        <div key={person.name}>
-          <span>{person.name}</span>:<span>{person.number}</span>
-        </div>
-      ))}
+      <Filter newSearch={newSearch} setNewSearch={setNewSearch} />
+
+      <h3>Add a new</h3>
+      <PersonForm
+        handleSubmit={handleSubmit}
+        setNewName={setNewName}
+        setNewNumber={setNewNumber}
+        newName={newName}
+        newNumber={newNumber}
+      />
+      <h3>Numbers</h3>
+      <Persons filteredPersons={filteredPersons} />
     </div>
   );
 };
