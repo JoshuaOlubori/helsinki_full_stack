@@ -20,4 +20,10 @@ const update = async (id, newObject) => {
 }
 
 
-export default { getAll, create, update }
+const deleteContact = async (id) => {
+    const request = axios.delete(`${baseUrl}/${id}`)
+    const response = await request;
+      return response.data;
+  }
+
+export default { getAll, create, update, deleteContact }

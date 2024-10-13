@@ -42,11 +42,29 @@ const App = () => {
     }
   };
 
+  const handleDelete = (id) =>{
+console.log("DELETING CONTACT...");
+const deletedPersonName = PersonsData.find(person => person.id === id).name
+const confirmDeletion = window.confirm(`Are you sure you wanna delete ${deletedPersonName}`)
+
+if (confirmDeletion){
+  contacts.deleteContact(id).then(
+    deletedContact => {
+      console.log(deletedContact.name, " is deleted");
+     const updatedContactAfterDelete = PersonsData.filter(person => person.id !== deletedContact.id)
+      SetPersonsData(updatedContactAfterDelete)
+    }
+  )
+} else{
+  console.log(deletedPersonName, " was not deleted")
+}
+
+  }
   useEffect(() => {
     console.log("Effect started");
     contacts.getAll().then(
       initialContacts =>{
-        console.log("INITIAL CONTACT", initialContacts)
+        console.log("INITIAL CONTACT", initialContacts);
         SetPersonsData(initialContacts);
       }
     )
@@ -66,7 +84,7 @@ const App = () => {
         newNumber={newNumber}
       />
       <h3>Numbers</h3>
-      <Persons filteredPersons={filteredPersons} />
+      <Persons filteredPersons={filteredPersons} handleDelete={handleDelete}/>
     </div>
   );
 };
