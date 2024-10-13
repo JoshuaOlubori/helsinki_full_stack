@@ -13,7 +13,8 @@ const App = () => {
   const filteredPersons = PersonsData.filter((person) =>
     person.name.toLowerCase().includes(newSearch.toLowerCase())
   );
-  const[ notificationMessage, setNotificationMessage] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState(null);
+  const [errorStatus, setErrorStatus] = useState(false);
 
   // on submit:
   // send newObj to jsonserver
@@ -40,10 +41,21 @@ const App = () => {
           SetPersonsData(PersonsData.map(p => p.id === matchingObjs[0].id ? updatedContact : p))
           setNewName("");
           setNewNumber("");
+          setErrorStatus(false);
           setNotificationMessage(`${updatedContact.name} is updated`)
-          setTimeout(()=>{ setNotificationMessage(null)},2000)
+          setTimeout(() => { setNotificationMessage(null) }, 2500)
         }
-      )
+      ).catch(error => {
+        console.log("Error", error)
+        if (error.status === 404) {
+          setErrorStatus(true);
+          setNotificationMessage(`Information of ${matchingObjs[0].name} has already been removed from the server`)
+          setTimeout(() => { setNotificationMessage(null) }, 2500)
+          SetPersonsData(PersonsData.filter(p => p.id !== matchingObjs[0].id))
+          setNewName("");
+          setNewNumber("");
+        }
+      })
     } else {
       contacts.create(newObj).then(
         newContact => {
@@ -51,8 +63,9 @@ const App = () => {
           SetPersonsData(PersonsData.concat(newContact));
           setNewName("");
           setNewNumber("");
+          setErrorStatus(false);
           setNotificationMessage(`Added ${newContact.name}`)
-          setTimeout(()=>{ setNotificationMessage(null)},2000)
+          setTimeout(() => { setNotificationMessage(null) }, 2500)
         }
       )
 
@@ -68,13 +81,18 @@ const App = () => {
     if (confirmDeletion) {
       contacts.deleteContact(id).then(
         deletedContact => {
-          console.log(deletedContact.name, " is deleted");
           const updatedContactAfterDelete = PersonsData.filter(person => person.id !== deletedContact.id)
+          setErrorStatus(false);
+          setNotificationMessage(`Deleted ${deletedContact.name}`)
+          setTimeout(() => { setNotificationMessage(null) }, 2500)
           SetPersonsData(updatedContactAfterDelete)
         }
       )
     } else {
-      console.log(deletedPersonName, " was not deleted")
+      setErrorStatus(false);
+      setNotificationMessage(`${deletedContact.name} was not deleted`)
+      setTimeout(() => { setNotificationMessage(null) }, 2500)
+
     }
 
   }
@@ -101,7 +119,7 @@ const App = () => {
         newName={newName}
         newNumber={newNumber}
       />
-      <Notification message={notificationMessage} />
+      <Notification message={notificationMessage} errorStatus={errorStatus} />
       <h3>Numbers</h3>
       <Persons filteredPersons={filteredPersons} handleDelete={handleDelete} />
     </div>

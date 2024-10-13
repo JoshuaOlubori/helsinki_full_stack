@@ -1,6 +1,6 @@
-export default Notification = ({ message }) => {
+export default Notification = ({ message, errorStatus }) => {
 const styles = {
-  color: "green",
+  color: errorStatus ? "red": "green",
   background: "lightgrey",
   fontSize: 20,
   borderStyle: "solid",
