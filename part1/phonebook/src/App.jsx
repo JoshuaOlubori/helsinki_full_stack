@@ -4,6 +4,7 @@ import { isEqual } from "lodash";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import contacts from "./services/contacts";
 
 const App = () => {
   const [newName, setNewName] = useState("");
@@ -13,7 +14,7 @@ const App = () => {
   const filteredPersons = PersonsData.filter((person) =>
     person.name.toLowerCase().includes(newSearch.toLowerCase())
   );
-const baseUrl = "http://localhost:3001/persons"
+
 
   // on submit:
   // send newObj to jsonserver
@@ -28,10 +29,10 @@ const baseUrl = "http://localhost:3001/persons"
     if (matchingObjs.length != 0) {
       alert(`${newObj.name} is already added to phonebook`);
     } else {
-      axios.post(baseUrl, newObj).then(
-        response => {
-          console.log("response is", response.data)
-          SetPersonsData(PersonsData.concat(response.data));
+      contacts.create(newObj).then(
+        newContact => {
+          console.log("response is", newContact)
+          SetPersonsData(PersonsData.concat(newContact));
           setNewName("");
           setNewNumber("");
         }
@@ -43,10 +44,12 @@ const baseUrl = "http://localhost:3001/persons"
 
   useEffect(() => {
     console.log("Effect started");
-    axios.get(baseUrl).then((response) => {
-      console.log(response.data);
-      SetPersonsData(response.data);
-    });
+    contacts.getAll().then(
+      initialContacts =>{
+        console.log("INITIAL CONTACT", initialContacts)
+        SetPersonsData(initialContacts);
+      }
+    )
   }, []);
 
   return (
