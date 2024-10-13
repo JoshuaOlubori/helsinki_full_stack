@@ -9,12 +9,14 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newSearch, setNewSearch] = useState("");
-  // const [filteredPersons, setFilteredPersons] = useState(persons);
   const [PersonsData, SetPersonsData] = useState([]);
   const filteredPersons = PersonsData.filter((person) =>
     person.name.toLowerCase().includes(newSearch.toLowerCase())
   );
+const baseUrl = "http://localhost:3001/persons"
 
+  // on submit:
+  // send newObj to jsonserver
   const handleSubmit = (e) => {
     e.preventDefault();
     const newObj = { name: newName, number: newNumber };
@@ -26,15 +28,22 @@ const App = () => {
     if (matchingObjs.length != 0) {
       alert(`${newObj.name} is already added to phonebook`);
     } else {
-      SetPersonsData(PersonsData.concat(newObj));
-      setNewName("");
-      setNewNumber("");
+      axios.post(baseUrl, newObj).then(
+        response => {
+          console.log("response is", response.data)
+          SetPersonsData(PersonsData.concat(response.data));
+          setNewName("");
+          setNewNumber("");
+        }
+      )
+
+     
     }
   };
 
   useEffect(() => {
     console.log("Effect started");
-    axios.get("https://3d78k7-3001.csb.app/persons").then((response) => {
+    axios.get(baseUrl).then((response) => {
       console.log(response.data);
       SetPersonsData(response.data);
     });
