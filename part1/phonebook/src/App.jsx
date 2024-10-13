@@ -3,10 +3,15 @@ import { isEqual } from "lodash";
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: 9999999 },
+    { name: "Arto Hellas", number: "040-123456", id: 1 },
+    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
+    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
+    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
   ]);
-  const [newName, setNewName] = useState(" ");
-  const [newNumber, setNewNumber] = useState(" ");
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+  const [newSearch, setNewSearch] = useState("");
+  // const [filteredPersons, setFilteredPersons] = useState(persons);
 
   const handleNameInputChange = (e) => {
     setNewName(e.target.value);
@@ -15,6 +20,16 @@ const App = () => {
   const handleNumberInputChange = (e) => {
     setNewNumber(e.target.value);
   };
+
+  const handleSearchInputChange = (e) => {
+    setNewSearch(e.target.value);
+  };
+
+  const filteredPersons = persons.filter((person) =>
+    person.name.toLowerCase().includes(newSearch.toLowerCase())
+  );
+
+  console.log(filteredPersons, newSearch);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -33,6 +48,14 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <p>
+        filter shown with a{" "}
+        <input
+          type="text"
+          value={newSearch}
+          onChange={handleSearchInputChange}
+        />
+      </p>
       <form onSubmit={handleSubmit}>
         <div>
           <p>
@@ -49,7 +72,7 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      {persons.map((person) => (
+      {filteredPersons.map((person) => (
         <div key={person.name}>
           <span>{person.name}</span>:<span>{person.number}</span>
         </div>
