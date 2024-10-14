@@ -1,18 +1,42 @@
 import React, { useState, useEffect } from 'react'
 import CountrySearch from './components/CountrySearch';
 import countriesService from './services/countries';
+import ShowCountries from './components/ShowCountries';
+import ShowSpecificCountry from './components/ShowSpecificCountry';
 
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState(null);
   const [countries, setCountries] = useState([]);
   const [warning, setWarning] = useState("");
+  const [toggleButton, setToggleButton] = useState(true);
+  const [specificCountryInfo, setSpecificCountryInfo] = useState(null);
 
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value)
   }
 
+  const revealCountry = (name) =>{
+  
+    // setToggleButton(!toggleButton);
+      countriesService.getSpecific(name).then(
+        returnedCountry => {
+          console.log("RETURNED COUNTRY IS ", returnedCountry);
+          setSpecificCountryInfo(returnedCountry);
+          setToggleButton(prev => !prev)
+        }
+  
+        
+      ).catch(error =>{
+        console.log("ERROR IN RETURNING SPECIFIC COUNTRY", error)
+      })
+     
+   
+    
+
+    
+   }
 
 
   useEffect(() => {
@@ -39,6 +63,8 @@ const App = () => {
   }, [searchTerm]);
 
 
+
+
   return (
     <div>
     <span>Find countries </span>
@@ -48,32 +74,26 @@ const App = () => {
       setSearchTerm={setSearchTerm} 
       handleSearch={handleSearch} 
     />
+
+    { (searchTerm === null || searchTerm === "") ? <p></p>: (
+      <>
     <p>{warning}</p>
     <ul>
       {countries.length === 1 ? (
-        <>
-          <h1>{countries[0].name.common}</h1>
-          <p>Capital: {countries[0].capital[0]}</p>
-          <p>Area: {countries[0].area}</p>
-
-          <h2>languages:</h2>
-          <div>
-      {console.log("country languages",countries[0].languages)}
-    <ul>
-    {Object.values(countries[0].languages).map((language, index) => (
-    <li key={index}>{language}</li>
-  ))}
-    </ul>
-<img src={countries[0].flags.png} alt={countries[0].flags.alt} />
-          </div>
-          
-        </>
+        <ShowSpecificCountry name={countries[0].name.common}
+        capital={countries[0].capital[0]}
+        area={countries[0].area}
+        languages={countries[0].languages}
+        imgSrc={countries[0].flags.png}
+        imgAlt={countries[0].flags.alt}
+        />
+        
       ) : (
         countries.map((country) => (
-          <li key={country.name.official}>{country.name.official}</li>
+          <ShowCountries toggleButton={toggleButton} revealCountry={revealCountry} officialName={country.name.official} specificCountryInfo={specificCountryInfo} />
         ))
       )}
-    </ul>
+    </ul></>)}
   </div>
   )
 }

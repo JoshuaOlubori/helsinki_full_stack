@@ -8,7 +8,7 @@ const getAll = async () => {
 }
 
 const getSpecific = async (name) => {
-  const request = axios.get(`${baseUrl}/api/${name}`)
+  const request = axios.get(`${baseUrl}/api/name/${name}`)
   const response = await request;
     return response.data;
 }
