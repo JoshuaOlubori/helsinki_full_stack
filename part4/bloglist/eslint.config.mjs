@@ -47,7 +47,7 @@ export default [
     },
   },
   {
-    ignores: ['client/dist/**', 'build/**'],
+    ignores: ['bloglist-frontend/dist/**', 'build/**'],
   },
 ]
 
