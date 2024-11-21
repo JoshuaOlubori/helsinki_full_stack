@@ -6,17 +6,31 @@ const Blog = require("../models/blog")
 const mongoose = require("mongoose")
 const supertest = require("supertest")
 const app = require("../app")
-
+const User = require("../models/user")
+const bcrypt = require("bcrypt")
 const api = supertest(app)
+
 
 describe("for some initial blog posts", () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
+    await User.deleteMany({})
 
-    const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog))
+    const passwordHash = await bcrypt.hash("admin", 10)
+    const adminUser = new User({ username: "admin", passwordHash })
+    const savedUser = await adminUser.save()
+
+    const blogObjects = helper.initialBlogs.map((blog) => {
+      return new Blog({
+        ...blog,
+        user: savedUser.id, // Associate each blog with the admin user
+      })
+    })
 
     const promiseArray = blogObjects.map((blog) => blog.save())
     await Promise.all(promiseArray)
+
+
   })
 
   test("that blogs are returned as json", async () => {
@@ -55,7 +69,27 @@ describe("Deletion of a blog", () => {
 
     logger.info("blog to delete", blogToDelete)
 
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+    const loginResponse = await api
+      .post("/api/login")
+      .send({
+        username: "admin",
+        password: "admin"
+      })
+      .set("Content-Type", "application/json")
+
+    console.log("Login response body:", loginResponse.body)
+    console.log("Login response status:", loginResponse.status)
+
+    // Ensure login is successful
+    assert.strictEqual(loginResponse.status, 200, "Login failed")
+    assert.ok(loginResponse.body.token, "Token is missing from login response")
+
+    const token = loginResponse.body.token
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
     logger.info("remaining blog", blogsAtEnd)
@@ -72,6 +106,18 @@ describe("Deletion of a blog", () => {
 
 describe("adding new blogs", () => {
   test("a valid blog can be added ", async () => {
+
+    const loginResponse = await api
+      .post("/api/login")
+      .send({
+        username: "admin",
+        password: "admin",
+      })
+      .set("Content-Type", "application/json")
+
+    const token = loginResponse.body.token
+
+
     const newBlog = {
       title: "Node patterns",
       author: "Michael John",
@@ -81,9 +127,10 @@ describe("adding new blogs", () => {
 
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
-      .expect("Content-Type", /application\/json/)
+      .set("Content-Type", "application/json")
 
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
@@ -127,13 +174,24 @@ describe("Formatting of blog objects", () => {
   })
 
   test("blog without likes is not defaulted to zero likes", async () => {
+    const loginResponse = await api
+      .post("/api/login")
+      .send({
+        username: "admin",
+        password: "admin"
+      })
+      .set("Content-Type", "application/json")
+
+    const token = loginResponse.body.token
+
     const newBlog = {
       title: "Django patterns",
       author: "Michael Oliver",
       url: "https://reactpatterns.com/",
     }
 
-    const response = await api.post("/api/blogs").send(newBlog).expect(201)
+    const response = await api.post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`).send(newBlog).expect(201).expect("Content-Type", /application\/json/)
     const savedBlog = response.body
     logger.info("saved blog, ", savedBlog)
 
